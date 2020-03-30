@@ -8,6 +8,7 @@
 		<script src="C:/corso_java/ws_eclipse/crud rest/src/static/js/bootstrap.min.js"></script>
 		<script src="C:/corso_java/ws_eclipse/crud rest/src/static/js/bootstrap.bundle.js"></script>
 		<script src="C:/corso_java/ws_eclipse/crud rest/src/static/js/jqueryUI/jquery-ui.min.js"></script>
+		<script src="C:/corso_java/ws_eclipse/crud rest/src/static/js/pagine/ricerca.js"></script>
 
 <script type="text/javascript">
 $(document).ready(function(){
@@ -49,9 +50,6 @@ $(document).ready(function(){
 						<input   class="form-control" list="optionId" name="idUtenteInput" id="settoreId" value="">
 						<datalist id="optionId">
 							
-<!-- 								<option class="form-control" value="${utente.id}">${utente.nome } -->
-<!-- 									${utente.cognome}</option> -->
-							
 						</datalist>
 					</div>
 				</div>
@@ -62,8 +60,14 @@ $(document).ready(function(){
 
 				</div>
 			</div>
+			<div class="form-group" id="optionId">
+				<div class="col-sm-offset-2 col-sm-10">
+					<button type="button" class="btn btn-primary btn-md"
+						id="clickIndietro" onclick="indietro()">Indietro</button>
+				</div>
+			</div>
 		</form>
-<table class="table table-striped" id="my_table" style="visibility: hidden">
+<table class="table table-striped" id="my_table" style="display: none">
   <thead>
 				<tr>
 					<th>Id</th>
@@ -81,78 +85,6 @@ $(document).ready(function(){
 </table>
 
 </div>
-
-<script type="text/javascript">
-
-function creaOption(){
-		
-		doCall('GET', 'http://212.237.32.76:3000/settore', {}, function(risposta){
-			   //ON SUCCESS
-				console.log(risposta);
-
-				for(var i = 0; i < risposta.length; i++) {
-				    $("#optionId").append("<option class='form-control' value='"+risposta[i].codice+"'>"+risposta[i].descrizione+"</option>");
-				}
-			   
-		});
-	
-}
-
-function creaTabella(risposta){
-    	console.log()
-    	$.each(risposta, function(key, val) {
-		 	var tdId = '<td>' + val._id + '</td>';
-		 	var tdNome = '<td>' + val.nome + '</td>';
-		 	var tdCognome = '<td>' + val.cognome + '</td>';
-		 	var tdData = '<td>' + val.dataNascita + '</td>';
-		 	if(val.residenza){
-		 		var regione = '<td>' + val.residenza.regione.descrizione + '</td>';
-			 	var provincia = '<td>' + val.residenza.provincia.descrizione + '</td>';
-			 	var comune = '<td>' + val.residenza.comune.descrizione + '</td>';
-		 	}else {
-		 		var regione = '<td>' + "nessuna" + '</td>';
-			 	var provincia = '<td>' + "nessuna" + '</td>';
-			 	var comune = '<td>' + "nessuna" + '</td>';
-		 	}
-		 	var tdSettore = '<td>' + val.settore.descrizione + '</td>';
-		 	var tdStipendio = '<td>' + val.stipendioRAL + '</td>';
-		 	
-			$('#my_table').append('<tr>'+  tdId  + tdNome + tdCognome + tdData + regione + provincia + comune  + tdSettore + tdStipendio +'</tr>')
-			 	
-            });
-	
-}
-
-function doCall(typeRequest, urlPath, parametri, callbackOnSuccess) {
-	$.ajax({
-		url: urlPath,
-		type: typeRequest,
-		data: JSON.stringify(parametri),
-		success: callbackOnSuccess,
-		headers: {
-        	"Content-Type":'application/json',
-        	'Accept': 'application/json',
-        }
-	});
-}
-
-function executeRicerca(){
-	var nome= $("#nomeId").val();
-	var cognome= $("#cognomeId").val();
-	var settore= $("#settoreId").val();
-	
-	doCall('GET', 'http://212.237.32.76:3000/risorsa?nome='+ nome+'&cognome='+cognome +'&codiceSettore='+settore, {}, function(risposta){
-		   //ON SUCCESS
-			console.log(risposta);
-        var res= document.getElementById('my_table');
-        res.setAttribute("style","visibility: visible");
-        
-        creaTabella(risposta);
-	});
-}
-
-
-</script>
 
 </body>
 </html>
