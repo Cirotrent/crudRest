@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="ISO-8859-1">
+<title>Ricerca</title>
+<link href="C:/corso_java/ws_eclipse/crud rest/src/static/css/bootstrap.min.css" rel="stylesheet" type="text/css">
+		<script src="C:/corso_java/ws_eclipse/crud rest/src/static/js/jquery-1.10.2.min.js"></script>
+		<script src="C:/corso_java/ws_eclipse/crud rest/src/static/js/bootstrap.min.js"></script>
+		<script src="C:/corso_java/ws_eclipse/crud rest/src/static/js/bootstrap.bundle.js"></script>
+		<script src="C:/corso_java/ws_eclipse/crud rest/src/static/js/jqueryUI/jquery-ui.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function(){
+        // Disable form submit:
+        $('form').submit( function(e){
+            e.preventDefault();
+        });
+
+	$("div#dettaglio").hide();
+	});
+	</script>
+</head>
+<body onload="creaOption()">
+<div class="container">
+	<div class="page-header">
+		<h3>Pagina di ricerca</h3>
+	</div>
+	
+	<form class="form-horizontal"	id="cercaId" style="visibility: visible" method="get"
+			onSubmit="return executeRicerca()">
+			<div class="form-group">
+				<label class="control-label col-sm-2" for="tokenInputId">Nome:</label>
+				<div class="col-sm-4">
+					<input class="form-control" type="text" id="nomeId"
+						name="token">
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="control-label col-sm-2" for="playlistInputId">Cognome:</label>
+				<div class="col-sm-4">
+					<input class="form-control" type="text" id="cognomeId"
+						name="playlist">
+				</div>
+			</div>
+			
+			<div class="form-group">
+					<label class="control-label col-sm-2" for="idUtenteId">Settore:</label>
+					<div class="col-sm-4">
+						<input   class="form-control" list="optionId" name="idUtenteInput" id="settoreId" value="">
+						<datalist id="optionId">
+							
+<!-- 								<option class="form-control" value="${utente.id}">${utente.nome } -->
+<!-- 									${utente.cognome}</option> -->
+							
+						</datalist>
+					</div>
+				</div>
+			
+			<div class="form-group">
+				<div class="col-sm-offset-2 col-sm-10">
+					<button  type="submit" class="btn btn-primary btn-md">Cerca</button>
+
+				</div>
+			</div>
+		</form>
+<table class="table table-striped" id="my_table" style="visibility: hidden">
+  <thead>
+				<tr>
+					<th>Id</th>
+					<th>Nome</th>
+					<th>Cognome</th>
+					<th>Data di nascita</th>
+					<th>Regione</th>
+					<th>Provincia</th>
+					<th>Comune</th>
+					<th>Settore</th>
+					<th>Sipendio</th>
+				</tr>
+			</thead>
+
+</table>
+
+</div>
+
+<script type="text/javascript">
+
+function creaOption(){
+		
+		doCall('GET', 'http://212.237.32.76:3000/settore', {}, function(risposta){
+			   //ON SUCCESS
+				console.log(risposta);
+
+				for(var i = 0; i < risposta.length; i++) {
+				    $("#optionId").append("<option class='form-control' value='"+risposta[i].codice+"'>"+risposta[i].descrizione+"</option>");
+				}
+			   
+		});
+	
+}
+
+function creaTabella(risposta){
+    	console.log()
+    	$.each(risposta, function(key, val) {
+		 	var tdId = '<td>' + val._id + '</td>';
+		 	var tdNome = '<td>' + val.nome + '</td>';
+		 	var tdCognome = '<td>' + val.cognome + '</td>';
+		 	var tdData = '<td>' + val.dataNascita + '</td>';
+		 	if(val.residenza){
+		 		var regione = '<td>' + val.residenza.regione.descrizione + '</td>';
+			 	var provincia = '<td>' + val.residenza.provincia.descrizione + '</td>';
+			 	var comune = '<td>' + val.residenza.comune.descrizione + '</td>';
+		 	}else {
+		 		var regione = '<td>' + "nessuna" + '</td>';
+			 	var provincia = '<td>' + "nessuna" + '</td>';
+			 	var comune = '<td>' + "nessuna" + '</td>';
+		 	}
+		 	var tdSettore = '<td>' + val.settore.descrizione + '</td>';
+		 	var tdStipendio = '<td>' + val.stipendioRAL + '</td>';
+		 	
+			$('#my_table').append('<tr>'+  tdId  + tdNome + tdCognome + tdData + regione + provincia + comune  + tdSettore + tdStipendio +'</tr>')
+			 	
+            });
+	
+}
+
+function doCall(typeRequest, urlPath, parametri, callbackOnSuccess) {
+	$.ajax({
+		url: urlPath,
+		type: typeRequest,
+		data: JSON.stringify(parametri),
+		success: callbackOnSuccess,
+		headers: {
+        	"Content-Type":'application/json',
+        	'Accept': 'application/json',
+        }
+	});
+}
+
+function executeRicerca(){
+	var nome= $("#nomeId").val();
+	var cognome= $("#cognomeId").val();
+	var settore= $("#settoreId").val();
+	
+	doCall('GET', 'http://212.237.32.76:3000/risorsa?nome='+ nome+'&cognome='+cognome +'&codiceSettore='+settore, {}, function(risposta){
+		   //ON SUCCESS
+			console.log(risposta);
+        var res= document.getElementById('my_table');
+        res.setAttribute("style","visibility: visible");
+        
+        creaTabella(risposta);
+	});
+}
+
+
+</script>
+
+</body>
+</html>
